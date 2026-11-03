@@ -19,5 +19,5 @@ load_dotenv()
 #     }
 # )
 
-redis_url: str = os.environ.get("REDIS_URL")
+redis_url: str = os.getenv("REDIS_URL", "redis://127.0.0.1:6379")
 r = redis.Redis.from_url(redis_url, decode_responses=True)
