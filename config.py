@@ -1,0 +1,9 @@
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+SECRET_KEY = os.environ.get("SECRET_KEY")
+# SQLALCHEMY_DATABASE_URI = 'sqlite:///database.db'
+DEBUG = os.environ.get("DEBUG")

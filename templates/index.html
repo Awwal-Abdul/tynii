@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Tynii - A Fast and Relaiable URL shortner you can trust</title>
+
+	<!-- PyScript CSS & Core Library -->
+	<script type="module" src="{{ url_for('static', filename='pyscript/core.js') }}"></script>
+	<link rel="stylesheet" href="{{ url_for('static', filename='pyscript/core.css') }}">
+
+
+    <!-- JavaScript IndexedDB Helpers -->
+    <script>
+        const DB_NAME = "LocalFirstStore";
+        const STORE_NAME = "files";
+        const FILE_KEY = "sqlite_db";
+
+        function openIndexedDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, 1);
+                request.onupgradeneeded = (e) => {
+                    e.target.result.createObjectStore(STORE_NAME);
+                };
+                request.onsuccess = (e) => resolve(e.target.result);
+                request.onerror = (e) => reject(e.target.error);
+            });
+        }
+
+        async function saveToIndexedDB(arrayBuffer) {
+            const db = await openIndexedDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, "readwrite");
+                tx.objectStore(STORE_NAME).put(arrayBuffer, FILE_KEY);
+                tx.oncomplete = () => resolve(true);
+                tx.onerror = (e) => reject(e.target.error);
+            });
+        }
+
+        async function loadFromIndexedDB() {
+            const db = await openIndexedDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, "readonly");
+                const req = tx.objectStore(STORE_NAME).get(FILE_KEY);
+                req.onsuccess = () => resolve(req.result || null);
+                req.onerror = (e) => reject(e.target.error);
+            });
+        }
+    </script>
+    
+</head>
+<body>
+	<h1>Tynii!</h1>
+	<input type="text" id="longUrl" placeholder="https://example.com/very/long/path" style="width: 70%;"><br>
+    <button id="createBtn">Shorten URL</button>
+
+    <h3>Your Links & Analytics</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Short Code</th>
+                <th>Original URL</th>
+                <th>Clicks</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="linksTableBody">
+            <!-- Populated dynamically from local SQLite -->
+        </tbody>
+    </table>
+
+
+
+    <script type="py" src="{{ url_for('static', filename='script/script.py') }}">
+        
+    </script>
+
+
+</body>
+</html>
