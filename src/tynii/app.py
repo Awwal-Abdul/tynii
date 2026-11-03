@@ -2,13 +2,13 @@ import uuid
 
 from flask import Flask, jsonify, make_response, redirect, render_template, request
 
-from .extention import cors, r
+from .extention import r
 
 app = Flask(__name__)
 app.config.from_pyfile("config.py")
 
 
-cors.init_app(app)
+# cors.init_app(app)
 
 
 @app.route("/")
