@@ -1,11 +1,12 @@
+import json
 import sqlite3
 import uuid
-import json
 
-from js import document, window, FormData, Blob, Uint8Array
+from js import Blob, FormData, Uint8Array, document, window
+from pyodide.http import pyfetch
 from pyscript import when
 
-BACKEND_URL = "http://localhost:5000"
+BACKEND_URL = window.location.origin
 DB_NAME = "url_shortener.sqlite3"
 
 
@@ -40,7 +41,7 @@ cursor.execute("""
     );
 """)
 conn.commit()
-    
+
 
 def persist_db():
     """Reads the SQLite file from Pyodide virtual disk and saves it to IndexedDB."""
@@ -61,6 +62,7 @@ def encode_base62(num: int) -> str:
         encoded.append(chars[remainder])
     return "".join(reversed(encoded))
 
+
 def generate_short_code() -> str:
     u = uuid.uuid4().int
     return encode_base62(u)[:7]
@@ -70,7 +72,9 @@ def load_links():
     tbody = document.getElementById("linksTableBody")
     tbody.innerHTML = ""
 
-    cursor.execute("SELECT id, short_code, original_url, click_count FROM links ORDER BY id DESC;")
+    cursor.execute(
+        "SELECT id, short_code, original_url, click_count FROM links ORDER BY id DESC;"
+    )
     rows = cursor.fetchall()
 
     for row in rows:
@@ -89,9 +93,8 @@ def load_links():
         tbody.appendChild(tr)
 
 
-        
 @when("click", "#createBtn")
-def handler():
+async def handler():
     input_element = document.getElementById("longUrl")
     long_url = str(input_element.value).strip()
 
@@ -104,11 +107,20 @@ def handler():
     try:
         cursor.execute(
             "INSERT INTO links (short_code, original_url) VALUES (?, ?);",
-            (short_code, long_url)
+            (short_code, long_url),
         )
+
+        payload = json.dumps({"short_code": short_code, "original_url": long_url})
+        await pyfetch(
+            f"{BACKEND_URL}/api/register",
+            method="POST",
+            headers={"Content-Type": "application/json"},
+            body=payload,
+            credentials="include",
+        )
+
         conn.commit()
         persist_db()
-        
 
         window.document.getElementById("longUrl").value = ""
         load_links()
@@ -116,9 +128,6 @@ def handler():
         window.alert(f"Error creating link: {str(e)}")
 
 
-
-
-
 # Run async initialization on page load
-persist_db() # Save initial state if newly created
+persist_db()  # Save initial state if newly created
 load_links()

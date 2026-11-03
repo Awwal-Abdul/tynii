@@ -1,5 +1,6 @@
 import os
 
+import redis
 from dotenv import load_dotenv
 from flask_cors import CORS
 
@@ -16,3 +17,6 @@ cors = CORS(
         }
     }
 )
+
+redis_url: str = os.environ.get("REDIS_URL") or "redis://127.0.0.1:6379"
+r = redis.Redis.from_url(redis_url, decode_responses = True)

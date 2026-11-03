@@ -104,6 +104,9 @@ def handler():
             "INSERT INTO links (short_code, original_url) VALUES (?, ?);",
             (short_code, longUrl),
         )
+
+        payload = json.dumps({"short_code": short_code, "original_url": long_url})
+        
         conn.commit()
 
         document.getElementById("longUrl").value = ""

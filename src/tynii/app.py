@@ -1,13 +1,14 @@
 import uuid
 
-from flask import Flask, jsonify, make_response, render_template, request
+from flask import Flask, jsonify, make_response, redirect, render_template, request
 
-# from .extention import cors
+from .extention import cors, r
 
 app = Flask(__name__)
 app.config.from_pyfile("config.py")
 
-# cors.init_app(app)
+
+cors.init_app(app)
 
 
 @app.route("/")
@@ -25,16 +26,36 @@ def home():
             "client_id", client_id, httponly=True, secure=True, samesite="Lax"
         )
 
-    print(f"Client-id: {client_id}")
     return res
 
 
-@app.post("/api/shorten")
+@app.post("/api/register")
 def shorten():
-    return jsonify({"message": "Successful"})
+    data = request.json
+
+    short_code = data.get("short_code")
+    original_url = data.get("original_url")
+
+    if not short_code or not original_url:
+        return jsonify({"error": "Missing parameters"}), 400
+
+    try:
+        r.set(short_code, original_url)
+        return jsonify(
+            {"status": "success", "message": "Link registered for routing"}
+        ), 201
+    except Exception as err:
+        return jsonify({"Error": f"Someting went wrong ({err})"}), 500
 
 
+@app.get("/<code>")
+def goto_url(code):
+    original_url = r.get(code)
 
+    if not original_url:
+        return jsonify({"error": "Link not found"}), 404
+
+    return redirect(str(original_url), code=302)
 
 
 def main() -> None:
