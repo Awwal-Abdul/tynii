@@ -10,3 +10,7 @@ node_modules/
 # Virtual environments
 .venv
 .env
+.vercel
+.env*
+bun.lock
+skills
