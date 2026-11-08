@@ -27,7 +27,7 @@ RUN uv sync --frozen --no-install-project
 COPY src ./src
 RUN uv sync --frozen
 
-EXPOSE 8000
+EXPOSE 80
 
 # Start redis-server in daemon mode and run gunicorn bound to 0.0.0.0:8000
 CMD ["sh", "-c", "redis-server --daemonize yes && exec gunicorn --chdir src --bind 0.0.0.0:8000 tynii.app:app"]
