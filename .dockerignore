@@ -1,0 +1,16 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+node_modules/
+*.egg-info
+
+# Virtual environments
+.venv
+.env
+.vercel
+.env*
+bun.lock
+skills

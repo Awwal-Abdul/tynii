@@ -1,0 +1,15 @@
+{
+  "services": {
+    "tyni": {
+      "root": "./",
+      "entrypoint": "Dockerfile"
+    }
+  },
+  
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": { "service": "tynii" }
+    }
+  ]
+}

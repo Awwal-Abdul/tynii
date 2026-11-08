@@ -19,5 +19,5 @@ load_dotenv()
 #     }
 # )
 
-# redis_url: str = os.getenv("REDIS_URL", "redis://127.0.0.1:6379")
-r = redis.Redis.from_url("redis://default:cy7xe6wGgC09rISM5h7zClOYkH2TQV80@rhubarb-ensuring-drop-24903.db.redis.io:19840", decode_responses=True)
+redis_url: str = os.getenv("REDIS_URL", "redis://127.0.0.1:6379")
+r = redis.Redis.from_url(redis_url, decode_responses=True)
